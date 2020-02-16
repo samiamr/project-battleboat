@@ -1,32 +1,48 @@
 ---
 - name: Install all dependencies debian
   apt:
+   update_cache: yes
    name:
     - python-dev
-    - python3-dev
     - libsasl2-dev
     - python-dev
     - libldap2-dev
     - libssl-dev
-    - python3-pip
     - python-pip
     - git
     - python-docker
    state: present
   when: ansible_facts['distribution'] == "Debian"
 
+
+
+- name: upgrade all packages
+  yum: name=* state=latest
+
 - name: Install all dependencies centos
   yum:
+   update_cache: yes
    name:
     - epel-release
     - git
     - python
-    - python-pip
+    - python3-pip.noarch
+    - yum-utils
+    - python-docker
    state: present
   when: ansible_facts['distribution'] == "CentOS"
-
 
 - name: install (Bottle) python package.
   pip:
     name: docker-py
-  #when: ansible_facts['distribution'] == "Debian"
+    state: latest
+  when: ansible_facts['distribution'] == "Debian"
+
+- name: install (Bottle) python package.
+  pip:
+    name: 
+      - docker-py
+      - requests>=2.20.1
+    state: latest
+    executable: pip3
+  when: ansible_facts['distribution'] == "CentOS"

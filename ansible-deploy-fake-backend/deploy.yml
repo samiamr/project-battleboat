@@ -1,16 +1,8 @@
 # build and push builded images
-- hosts: debiancible centoscible
+- hosts: newvm
   become: true
   vars_files:
     - "secrets/docker_hub.yml"
-
- # pre_tasks:
-  #- name: Set authorized key taken from file
-  #  authorized_key:
-   #   user: centos
-    #  state: present
-     # key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-
 
   roles:
    # - role: install-package-debian

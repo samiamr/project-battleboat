@@ -1,57 +1,54 @@
 ---
-#- name: Create fake-backend directory
-#  file:
-#    path: /tmp/
-#    state: directory
+- name: Ansible check directory.
+  stat:
+    path: /tmp
+  register: folder_tmp
 
-#- name: Install Docker with official script
-#  command: chdir=/tmp/ {{ item }}
-# with_items:
-#    - curl -fsSL https://get.docker.com -o get-docker.sh
-#   - sh get-docker.sh
+- name: "echo if directory already existed"
+  debug:
+    msg: "the tmp directory is already existed"
+  when: folder_tmp.stat.exists
 
-#- name: Add the user 'docker'
-#  user:
-#   name: centos
-#   group: docker
-#  when: ansible_facts['distribution'] == "CentOS"
+- name: "Ansible Create directory tmp if not exists"
+  file:
+    path: /tmp
+    state: directory
+    mode: 0755
+    group: root
+    owner: root
+  when: folder_tmp.stat.exists == false
 
-#- name: Get application path '/tmp/' content
-#  shell: ls -1 /tmp/
-#  register: content
+- name: Ansible check file .
+  stat:
+    path: /tmp/get-docker.sh
+  register: script
 
-#- name: Delete all file in '/tmp/'
-#  file:
-#    path=/tmp/
-#    state=absent
-#  with_items:
-#    - "{{content.stdout_lines}}"
+- name: "echo if file already existed"
+  debug:
+    msg: "the scipt-docker is already existed"
+  when: script.stat.exists
 
-- name: Install docker centos
-  yum:
-    name: docker-ce
-    state: present
-  when: ansible_facts['distribution'] == "CentOS"
-
+- name: Install Docker with official script if script is not present
+  command: chdir=/tmp/ {{ item }}
+  with_items:
+    - curl -fsSL https://get.docker.com -o get-docker.sh
+    - sh get-docker.sh
+  when: script.stat.exists == false
+ 
 - name: Add the user centos into the 'docker' group
   user:
-    name: centos
+    name: root
     group: docker
-  when: ansible_facts['distribution'] == "CentOS"
-
-- name: Install docker debian
-  apt:
-    name: docker-ce
-    state: present
-  when: ansible_facts['distribution'] == "Debian"
+  when: (ansible_facts['distribution'] == "CentOS" and script.stat.exists == false )
 
 - name: Add the user admin into the 'docker' group
   user:
-    name: centos
+    name: admin
     group: docker
-  when: ansible_facts['distribution'] == "Debian"
+  when: (ansible_facts['distribution'] == "Debian" and script.stat.exists == false )
 
-- name: Start service
-  service:
-    name: docker
-    state: started
+- name: Run command if /path/to/database does not exist (without 'args' keyword).
+  command: systemctl start docker
+ 
+
+

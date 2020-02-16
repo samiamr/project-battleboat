@@ -4,12 +4,13 @@
     path: /fake-backend/
     state: directory
 
-- name: "Copy devops private keys file"
+- name: Copy devops private keys file
   copy:
     src: "files/devops_private_keys"
     dest: "/root/.ssh/id_rsa"
     mode: "0644"
-    owner: "centos"
+    owner: centos
+  when: ansible_facts['distribution'] == "CentOS"
 
 - name: Set authorized key taken from file
   authorized_key:
